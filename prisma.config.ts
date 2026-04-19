@@ -1,4 +1,4 @@
-import { env } from "@/env.js";
+import { env } from "./src/env.js";
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
