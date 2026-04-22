@@ -1,31 +1,31 @@
+import type { Request, Response } from "express";
+import { z } from "zod";
 import { PrismaUsersRepository } from "@/repositories/prisma/prisma-users-repositorie.js";
 import { RegisterUseCase } from "@/use-cases/register.js";
-import type { Request, Response } from "express";
-import z from "zod";
 
-export class UserController {
-  private registerBodySchema = z.object({
-    name: z.string(),
-    email: z.email(),
-    password: z.string().min(6),
+export async function registerController(req: Request, res: Response) {
+  const registerBodySchema = z.object({
+    name: z.string({ message: "O nome é obrigatório" }),
+    email: z.email({ message: "E-mail inválido" }),
+    password: z
+      .string()
+      .min(6, { message: "A senha deve ter no mínimo 6 caracteres" }),
   });
 
-  async register(req: Request, res: Response) {
-    try {
-      const { name, email, password } = this.registerBodySchema.parse(req.body);
+  try {
+    const validatedData = registerBodySchema.parse(req.body);
 
-      const usersRepository = new PrismaUsersRepository();
-      const registerUseCase = new RegisterUseCase(usersRepository);
+    const usersRepository = new PrismaUsersRepository();
+    const registerUseCase = new RegisterUseCase(usersRepository);
 
-      const user = await registerUseCase.execute({ name, email, password });
+    const user = await registerUseCase.execute(validatedData);
 
-      return res.status(201).json(user);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        return res.status(409).json({ error: error.message });
-      }
-
-      return res.status(409).json({ error: "Unknown error" });
+    return res.status(201).json(user);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return res.status(409).json({ error: error.message });
     }
+
+    return res.status(409).json({ error: "Unknown error" });
   }
 }
