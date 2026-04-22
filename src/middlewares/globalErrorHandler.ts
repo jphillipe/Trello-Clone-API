@@ -1,4 +1,3 @@
-// src/middlewares/global-error-handler.ts
 import type { NextFunction, Request, Response } from "express";
 import z, { ZodError } from "zod";
 import { env } from "../env.js";
